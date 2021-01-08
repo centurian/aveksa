@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<description><![CDATA[This is the main DataSource configuration file. The
+		DataSource properties and credentials are provided here]]></description>
+
+     
+
+<!--********************************************************************
+	*  Data Source - IDS  
+	************************************************************************ -->
+    <bean id="dataSourceIDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" 	value="${ids.jdbc.class}"/>
+        <property name="url" 				value="${ids.jdbc.url}"/>
+        <property name="username" 			value="${ids.jdbc.username}"/>
+        <property name="password" 			value="${ids.jdbc.password}"/>
+    </bean>
+    
+    <!--********************************************************************
+	* IBatis SQL Map Beans - IDS SQLMAPCLIENTTEMPLATE  
+	************************************************************************ -->
+	<bean id="sqlMapClientTemplateIDS"				class="com.emc.it.sap.reco.dao.MySqlMapClientTemplate">
+		<property name="dataSource" 				ref="dataSourceIDS"/>
+		<property name="sqlMapClient" 				ref="sqlMapClientIDS"/>
+	</bean>
+    
+    <bean id="idsDataSourceDAO" 						class="com.emc.it.sap.reco.dao.impl.IDSDataSourceDAOImpl" scope="singleton">
+<!--		<property name="sqlMapClientTemplateIDS" 		ref="sqlMapClientTemplateIDS"/>-->
+		<constructor-arg ref="sqlMapClientTemplateIDS" />
+     </bean>
+
+  <!--********************************************************************
+	* IBatis SQL Map Beans - SQLMAPCLIENT  
+	************************************************************************ -->
+    <bean id="sqlMapClientIDS" 						class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="configLocation" 			value="config/test-ids-sap-ibatis-config.xml"/>
+        <property name="dataSource" 	            ref="dataSourceIDS"/>
+        <property name="useTransactionAwareDataSource" value="true"/>
+        
+    </bean>
+    
+<!--     <bean id="idsDataSourceDAO" 						class="com.emc.it.sap.reco.dao.impl.IDSDataSourceDAOImpl" scope="singleton"> -->
+<!-- 		<constructor-arg ref="sqlMapClientTemplateIDS" /> -->
+<!--      </bean> -->
+     
+<!--     <bean id="idsDataSourceDAO" 						class="com.emc.it.sap.reco.dao.impl.IDSDataSourceDAOImpl" scope="singleton"> -->
+ <!--		<property name="sqlMapClientTemplateIDS" 		ref="sqlMapClientTemplateIDS"/>--> 
+<!-- 		<constructor-arg ref="sqlMapClientTemplateIDS" /> -->
+<!--      </bean> -->
+    
+<!--    <bean id="sqlMapClientIDSIbatisPaging" 		class="org.springframework.orm.ibatis.SqlMapClientFactoryBean" depends-on="idsDataSourceDAO">-->
+<!--        <property name="configLocation" 		value="META-INF/ibatis/identity-batch-ids-sap-tn/identity-batch-ids-sap-tn-ibatis-config.xml"/>-->
+<!--        <property name="dataSource" 			ref="dataSourceIDS"/> -->
+<!--        <property name="useTransactionAwareDataSource" value="true"/>-->
+<!--    </bean>-->
+<!--    -->
+  	<!--********************************************************************
+	* IBatis SQL Map Beans - IDS SQLMAPCLIENTTEMPLATE  
+	************************************************************************ -->
+<!--	<bean id="sqlMapClientTemplateIDS"				class="org.springframework.orm.ibatis.SqlMapClientTemplate">-->
+<!--		<property name="dataSource" 				ref="dataSourceIDS"/>-->
+<!--		<property name="sqlMapClient" 				ref="sqlMapClientIDS"/>-->
+<!--	</bean>-->
+	
+
+
+</beans>

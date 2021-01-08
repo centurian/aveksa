@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:batch="http://www.springframework.org/schema/batch"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="
+		http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/batch  http://www.springframework.org/schema/batch/spring-batch-2.1.xsd">
+
+   
+    <bean id="idmFile" 				class="com.emc.it.aveska.sap.reco.dto.IdmFile" scope="prototype" />
+    <bean id="idsIdmDTO" 				class="com.emc.it.aveska.sap.reco.domain.IDSIdmDTO" scope="prototype" />
+    <bean id="roleMappingFile" 				class="com.emc.it.aveska.sap.reco.dto.RoleMappingFile" scope="prototype" />
+    <bean id="idsRoleMappingDTO" 				class="com.emc.it.aveska.sap.reco.domain.IDSRoleMappingDTO" scope="prototype" />    
+<!--     <bean id="idsDataSourceDAOImpl" 	class="com.emc.it.sap.reco.dao.impl.IDSDataSourceDAOImpl" scope="prototype" /> -->
+<!--      <bean id="idsDataSourceDAO" 		class="com.emc.it.sap.reco.dao.IDSDataSourceDAO" scope="prototype" /> --> 
+    
+    
+   <bean id="cvsFileItemReader1" class="org.springframework.batch.item.file.FlatFileItemReader">
+		<!-- Read a csv file -->
+		<property name="resource" value="file:${ids.local.dir.idm}" />
+		<property name="linesToSkip" value="4" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<!-- split it -->
+				<property name="lineTokenizer">
+					<bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+					    <property name="delimiter" value=";"/>
+						<property name="names" value="SID,UserName,LastLogonDate" />
+						<property name="strict" value="false" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper">
+					<bean class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="idmFile" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	
+  <bean id="itemWriter1" 		class="com.emc.it.aveska.sap.reco.tasklet.IdmFileItemWriter">
+  		<constructor-arg  ref="idsIntegration_Mail"/>
+  			<property name="idsDataSourceDAO"    		 ref="idsDataSourceDAO"/>
+  			<property name="idsIdmDTO"    			 ref="idsIdmDTO"/>
+  			<property name="localFilePath" value="${ids.local.dir}" />
+	     	<property name="idmFileName" value="${ids.batch.idm.name}" />
+	     	<property name="localFileExt" value="${ids.local.file.ext}" />
+  	</bean>		
+	
+  <bean id="cvsFileItemReader2" class="org.springframework.batch.item.file.FlatFileItemReader">
+		<!-- Read a csv file -->
+		<property name="resource" value="file:${ids.local.dir.rolemapping}" />
+		<property name="linesToSkip" value="1" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<!-- split it -->
+				<property name="lineTokenizer">
+					<bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+					    <property name="delimiter" value=","/>
+						<property name="names" value="NTID,IdentityID,BusinessRole,SAPTechnicalRole,ModuleName,TechnicalRole" />
+						<property name="strict" value="false" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper">
+					<bean class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="roleMappingFile" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+  	
+  	
+
+  	
+  <bean id="itemWriter2" 		class="com.emc.it.aveska.sap.reco.tasklet.RoleMappingFileItemWriter">
+  		<constructor-arg  ref="idsIntegration_Mail"/>
+  			<property name="idsDataSourceDAO"    		 ref="idsDataSourceDAO"/>
+  			<property name="idsRoleMappingDTO"    			 ref="idsRoleMappingDTO"/>
+  			<property name="localFilePath" value="${ids.local.dir}" />
+	     	<property name="roleMappingFileName" value="${ids.batch.role.name}" />
+	     	<property name="localFileExt" value="${ids.local.file.ext}" />
+  	</bean>
+  
+ 
+  
+   <bean id="fileTransferTasklet" class="com.emc.it.aveska.sap.reco.tasklet.FileTransferTasklet" >
+   		<constructor-arg  ref="idsIntegration_Mail"/>
+	     <property name="localFilePath" value="${ids.local.dir}" />
+	     <property name="idmFileName" value="${ids.batch.idm.name}" />
+	     <property name="roleFileName" value="${ids.batch.role.name}" />
+	     <property name="localFileExt" value="${ids.local.file.ext}" />
+	     
+	     <property name="sftphost" value="${ids.sftp.hostname}" />
+	     <property name="username" value="${ids.sftp.user}" />
+	     <property name="password" value="${ids.sftp.password}" />
+	     <property name="sftpfolder" value="${ids.sftp.remote.dir}" />
+	     <property name="sftpPort" value="${ids.sftp.port}" />
+	     <property name="ftpType" value="${ids.ftp.type}" />
+  </bean>
+  
+  <bean id="deleteIdsTableRecTasklet" class="com.emc.it.aveska.sap.reco.tasklet.DeleteIdmTableRecTasklet" >
+   		<property name="idsDataSourceDAO"    		 ref="idsDataSourceDAO"/>
+  </bean>
+
+  <bean id="deleteRoleMappingTableRecTasklet" class="com.emc.it.aveska.sap.reco.tasklet.DeleteRoleMappingTableRecTasklet" >
+   		<property name="idsDataSourceDAO"    		 ref="idsDataSourceDAO"/>
+  </bean>  
+	  
+	<!--********************************************************************
+	* MAIL BEANS
+	************************************************************************ -->
+
+    <bean id="idsIntegration_Mail" 		class="com.emc.it.aveska.sap.reco.domain.IDSMail" scope="singleton" >
+       	<property name="host" 			value="${ids.mail.hostname}"/>
+       	<property name="port" 			value="${ids.mail.port}"/>
+       	<property name="_MailMsg" 		ref="idMailMessage"/>
+    </bean>
+    
+     <bean id="idMailMessage" 			class="org.springframework.mail.SimpleMailMessage" scope="singleton">
+       	<property name="from" 			value="${ids.mail.from}"/>
+       	<property name="to" 			value="${ids.mail.to}"/>
+       	<property name="subject" 		value="${ids.mail.subject} "/>
+    </bean>
+    
+     <batch:job id="IDS_AVESKA_SAP_LOAD" job-repository="jobRepository" >
+     
+		<batch:step id="fileDownloadTasklet"  next="deleteIdsTableRec">
+			<batch:tasklet ref="fileTransferTasklet" />
+		</batch:step>
+		
+		<batch:step id="deleteIdsTableRec" next="upLoadFileToIdsTable">
+			<batch:tasklet ref="deleteIdsTableRecTasklet" />
+		</batch:step>
+				
+		<batch:step id="upLoadFileToIdsTable" next="deleteRoleMappingTableRec" >
+			<batch:tasklet>
+				<batch:chunk 
+					reader="cvsFileItemReader1" 
+					writer="itemWriter1" 
+					commit-interval="2000">
+				</batch:chunk>				
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="deleteRoleMappingTableRec" next="upLoadFileToRoleMappingTable">
+			<batch:tasklet ref="deleteRoleMappingTableRecTasklet" />
+		</batch:step>		
+		
+		<batch:step id="upLoadFileToRoleMappingTable" >
+			<batch:tasklet>
+				<batch:chunk 
+					reader="cvsFileItemReader2" 
+					writer="itemWriter2" 
+					commit-interval="50000">
+				</batch:chunk>
+			</batch:tasklet>
+		</batch:step>		
+		
+	</batch:job>
+    
+</beans>

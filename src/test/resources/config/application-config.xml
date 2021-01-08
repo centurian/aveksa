@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+<import resource="classpath:/unity-request-context.xml"/>
+
+	 <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+<!-- 			    <value>file:${PROP_PATH}/IAM_COMMON_BATCH.profile</value> -->
+<!--                <value>file:${PROP_PATH}/IDS_SAP_HCM_TN.profile</value> -->
+
+<!--                  <value>classpath:IAM_COMMON_BATCH.profile</value>  -->
+                 <value>classpath:IDS_SUB_INT_SAP_RECO.profile</value>
+				 <value>classpath:log4j.properties</value>
+			</list>
+		</property>
+	</bean>
+
+<import resource="classpath:META-INF/spring/launch-context.xml" />
+<import resource="classpath:META-INF/spring/job-report.xml" />
+<import resource="classpath:config/test_datasource-config.xml" />
+
+
+<!--     <import resource="classpath:META-INF/spring/identity-batch-ids-sap-tn/identity-batch-ids-sap-tn-datasource-config.xml" /> -->
+<!--     <import resource="classpath:META-INF/spring/identity-batch-ids-sap-tn/identity-batch-ids-sap-tn-batch-config.xml" /> -->
+<!--     <import	resource="classpath:META-INF/spring/identity-batch-ids-sap-tn/batch-file-process-bean-config.xml" /> -->
+<!-- 	<import resource="classpath:META-INF/spring/identity-batch-ids-sap-tn/identity-batch-ids-sap-tn-launch-context.xml" /> -->
+	
+</beans>

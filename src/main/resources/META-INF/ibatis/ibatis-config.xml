@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="IDS">
+	
+	<resultMap id="idmToIds" class="com.emc.it.aveska.sap.reco.domain.IDSIdmDTO">
+		<result property="SID"					column="SID"/>
+		<result property="USER_NAME" 			column="USER_NAME" 			nullValue=""/>
+		<result property="LAST_LOGON_DATE" 		column="LAST_LOGON_DATE" 	typeHandler="com.emc.it.aveska.sap.reco.domain.XMLDateTypeHandler"/>
+	</resultMap>
+	
+	<resultMap id="roleMappingToIds" class="com.emc.it.aveska.sap.reco.domain.IDSRoleMappingDTO">
+		<result property="NT_ID" 					column="NT_ID" 					nullValue=""/>
+		<result property="IDENTITY_ID"				column="IDENTITY_ID" 			nullValue=""/>		
+		<result property="BUSINESS_ROLE" 			column="BUSINESS_ROLE" 			nullValue="" />
+		<result property="SAP_TECHNICAL_ROLE" 		column="SAP_TECHNICAL_ROLE" 	nullValue="" />
+		<result property="MODULE_NAME" 				column="MODULE_NAME" 			nullValue="" />
+		<result property="TECHNICAL_ROLE" 			column="TECHNICAL_ROLE" 		nullValue="" />
+	</resultMap>
+	
+	<insert id="insertIDMRecordToIDS"     parameterClass="com.emc.it.aveska.sap.reco.domain.IDSIdmDTO">
+		INSERT INTO igl_staging.IAM_SAP_IDM_DUMP (SID, USER_NAME, LAST_LOGON_DATE) 
+		VALUES (
+				#SID#,
+				#USER_NAME#,
+				#LAST_LOGON_DATE,handler=com.emc.it.aveska.sap.reco.domain.XMLDateTypeHandler#
+				)
+	</insert>
+	
+   <delete id="deleteIDMRecordToIDS" parameterClass="com.emc.it.aveska.sap.reco.domain.IDSIdmDTO">
+      DELETE FROM igl_staging.IAM_SAP_IDM_DUMP
+   </delete>
+
+
+	<insert id="insertRoleMappingRecordToIDS"     parameterClass="com.emc.it.aveska.sap.reco.domain.IDSRoleMappingDTO">
+		INSERT INTO igl_staging.IAM_SAP_ROLE_MAPPING (NT_ID, IDENTITY_ID, BUSINESS_ROLE, SAP_TECHNICAL_ROLE, MODULE_NAME, TECHNICAL_ROLE) 
+		VALUES (
+				#NT_ID#,
+				#IDENTITY_ID#,				
+				#BUSINESS_ROLE#,
+				#SAP_TECHNICAL_ROLE#,
+				#MODULE_NAME#,
+				#TECHNICAL_ROLE#
+				)
+	</insert>
+	
+   <delete id="deleteRoleMappingRecordToIDS" parameterClass="com.emc.it.aveska.sap.reco.domain.IDSIdmDTO">
+      DELETE FROM igl_staging.IAM_SAP_ROLE_MAPPING
+   </delete>	
+	
+ </sqlMap>
+ 
